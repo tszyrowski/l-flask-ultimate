@@ -1,4 +1,6 @@
-from flask import Flask, jsonify, request, url_for, redirect, session, render_template, g
+from flask import (
+    Flask, jsonify, request, url_for, redirect, session, render_template, g
+)
 import sqlite3
 
 app = Flask(__name__, template_folder="../templates")
@@ -8,7 +10,9 @@ app.config["SECRET_KEY"] = "thisisasecret"
 
 def connect_db():
     """Connect to database funciton"""
-    sql = sqlite3.connect("../database/data.db")
+    sql = sqlite3.connect(
+        "/home/t/trainingWorkspace/flask_ultimate_orelly/database/data.db"
+    )
     sql.row_factory = sqlite3.Row
     return sql
 
@@ -65,7 +69,8 @@ def index(name):
 def query():
     name = request.args.get("name")
     location = request.args.get("location")
-    return f"<h1>Hi {name}, You are from {location} You are on the query page</h1>"
+    return f"<h1>Hi {name}, You are from {location} " \
+        "You are on the query page</h1>"
 
 @app.route("/theform")
 def theform():
@@ -83,21 +88,41 @@ def processjson():
     name = data["name"]
     location = data["location"]
     randomlist = data["randomlist"]
-    return jsonify({"result": "success", "name": name, "location": location, "list": randomlist})
+    return jsonify(
+        {
+            "result": "success",
+            "name": name,
+            "location": location,
+            "list": randomlist
+        }
+    )
 
 @app.route("/combinedform", methods=["GET", "POST"])
 def combinedform():
     if request.method == "POST":
         name = request.form["name"]
         location = request.form["location"]
-        return f"<h1>OTHER FORM {name}. YOu are from {location}. Form submitted</h1>"
+        return f"<h1>OTHER FORM {name}. You're from {location}. Submitted</h1>"
     return render_template("fmt_form.html")
 
 @app.route("/redirect", methods=["GET", "POST"])
 def redirection():
     if request.method == "POST":
         name = request.form["name"]
-        location = request.form["location"] # will be in query string http://127.0.0.1:5000/home/nn?location=k
+        # will be in query string http://127.0.0.1:5000/home/nn?location=k
+        location = request.form["location"] 
         return redirect(url_for("home", name=name, location=location))
 
     return render_template("fmt_form.html")
+
+@app.route("/viewresults")
+def viewresutls():
+    db = get_db()
+    cur = db.execute("select id, name, location from users")
+    results = cur.fetchall()
+    returned_string = ""
+    for result in results:
+        entry = f"<h1>The ID is {result['id']}, the name is {result['name']}," \
+            f" location is {result['location']}</h1>"
+        returned_string += entry
+    return returned_string
