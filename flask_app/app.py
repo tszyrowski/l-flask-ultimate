@@ -1,6 +1,6 @@
-from flask import Flask, jsonify, request, url_for, redirect, session
+from flask import Flask, jsonify, request, url_for, redirect, session, render_template
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../templates")
 
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "thisisasecret"
@@ -13,7 +13,16 @@ def base():
 @app.route("/home/<string:name>", methods=["POST", "GET"])
 def home(name):
     session["name"] = name
-    return f"<h1>Hello {name} It is a Home page</h1>"
+    display = False
+    if name[0].lower() in ["t", "a", "e", "i", "o", "u", "y"]:
+        display = True
+    return render_template(
+        "home.html",
+        name=name,
+        display=display,
+        letters = [l for l in name],
+        listDicts = {k:(name.index(k)+1)*2 for k in name}
+    )
 
 @app.route("/json", methods=["POST", "GET"])
 def json():
@@ -36,11 +45,7 @@ def query():
 
 @app.route("/theform")
 def theform():
-    return """<form method="POST" action="/process">
-                <input type="text" name="name">
-                <input type="test" name="location">
-                <input type="submit" value="Submit">
-            </form>"""
+    return render_template("basic_form.html")
 
 @app.route("/process", methods=["POST"])
 def process():
@@ -62,11 +67,7 @@ def combinedform():
         name = request.form["name"]
         location = request.form["location"]
         return f"<h1>OTHER FORM {name}. YOu are from {location}. Form submitted</h1>"
-    return """<form method="POST">
-                  <div><label>Name: <input type="text" name="name"></label></div>
-                  <div><label>Location: <input type="text" name="location"></label></div>
-                  <input type="submit" value="Submit">
-              </form>"""
+    return render_template("fmt_form.html")
 
 @app.route("/redirect", methods=["GET", "POST"])
 def redirection():
@@ -75,9 +76,4 @@ def redirection():
         location = request.form["location"] # will be in query string http://127.0.0.1:5000/home/nn?location=k
         return redirect(url_for("home", name=name, location=location))
 
-    return """<form method="POST">
-                  <div><label>REdirect: <input type="text" name="name"></label></div>
-                  <div><label>Anyway: <input type="text" name="location"></label></div>
-                  <input type="submit" value="Submit">
-              </form>"""
-
+    return render_template("fmt_form.html")

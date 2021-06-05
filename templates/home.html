@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}HOME{% endblock %}
+
+{% block content %}
+{{ super() }}
+<h1>Hello {{name}} It is a Home page</h1>
+
+{% if display %}
+<h2>Started with {{ letters[0] }} which is t or consonant</h2>
+{% else %}
+<h2>Everything else</h2>
+{% endif %}
+
+{% for x in letters %}
+<h3>{{ x }}</h3>
+{% endfor %}
+
+<h4>{{ listDicts }}</h4>
+{% include "include.html" %}
+
+{% for x in listDicts %} 
+<h4>{{ x }} = {{ listDicts[x] }}</h4>
+{% endfor %}
+
+<mark>{% include "include.html" %}</mark>
+<h1></h1>
+
+<img src="{{ url_for("static", filename="images/dolph.png") }}">
+{% endblock %}
