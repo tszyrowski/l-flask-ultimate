@@ -13,8 +13,14 @@
 {% endif %}
 
 {% for x in letters %}
-<h3>{{ x }}</h3>
+<h4>{{ x }}</h4>
 {% endfor %}
+
+<h3>DATA FROM DB:</h3>
+{% for item in results %}
+<p>ID: <b>{{ item.id }}</b>, Name: <ins>{{ item.name }}</ins> location: <ins>{{ item.location }}</ins></p>
+{% endfor %}
+<h3>-------------</h3>
 
 <h4>{{ listDicts }}</h4>
 {% include "include.html" %}

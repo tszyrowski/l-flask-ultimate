@@ -42,11 +42,17 @@ def home(name):
     display = False
     if name[0].lower() in ["t", "a", "e", "i", "o", "u", "y"]:
         display = True
+    
+    db = get_db()
+    cur = db.execute("select id, name, location from users")
+    results = cur.fetchall()
+
     return render_template(
         "home.html",
         name=name,
         display=display,
         letters = [l for l in name],
+        results = results,
         listDicts = {k:(name.index(k)+1)*2 for k in name}
     )
 
@@ -126,3 +132,19 @@ def viewresutls():
             f" location is {result['location']}</h1>"
         returned_string += entry
     return returned_string
+
+@app.route("/addresults", methods=["GET", "POST"])
+def addresults():
+    if request.method == "POST":
+        name = request.form["name"]
+        location = request.form["location"]
+
+        db = get_db()
+        db.execute(
+            "insert into users (name, location) values (?, ?)",
+            [name, location]
+        )
+        db.commit()
+
+        return f"<h1>Added to DB: {name}. from {location}. Submitted</h1>"
+    return render_template("fmt_form.html")
