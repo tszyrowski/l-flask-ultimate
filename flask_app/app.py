@@ -1,9 +1,31 @@
-from flask import Flask, jsonify, request, url_for, redirect, session, render_template
+from flask import Flask, jsonify, request, url_for, redirect, session, render_template, g
+import sqlite3
 
 app = Flask(__name__, template_folder="../templates")
 
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "thisisasecret"
+
+def connect_db():
+    """Connect to database funciton"""
+    sql = sqlite3.connect("../database/data.db")
+    sql.row_factory = sqlite3.Row
+    return sql
+
+def get_db():
+    """Get database when needed and store in global var."""
+    if not hasattr(g, "sqlite3"):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
+
+@app.teardown_appcontext
+def close_db(error):
+    """Close db connection to prevent memorey leaks.
+    
+    Called whenever route returns.
+    """
+    if hasattr(g, "sqlite_db"):
+        g.sqlite_db.close()
 
 @app.route("/")
 def base():
@@ -34,7 +56,9 @@ def json():
 @app.route('/<name>')
 def index(name):
     mylist = [1,2,3,4]
-    foo = session["foo"]
+    foo = None
+    if "foo" in session:
+        foo = session["foo"]
     return f'<h1>Hello {name}! :) {foo}</h1>'
 
 @app.route("/query")
